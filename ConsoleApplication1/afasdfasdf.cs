@@ -96,7 +96,7 @@ namespace Walkthrough
 
         public void Run()
         {
-            IClientSessionChannel callEventChannel = client.getChannel("/topic/cwsi_AccountWasChanged");
+            IClientSessionChannel callEventChannel = client.getChannel("/topic/cwsi_ContactWasChanged");
 
             callEventChannel.unsubscribe(this);
             callEventChannel.subscribe(this);

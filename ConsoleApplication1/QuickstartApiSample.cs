@@ -27,7 +27,29 @@ namespace Walkthrough
 
         public void UpdateAccount(IDictionary<String, Object> data)
         {
-            var i = 0;
+            var t = GetEventType(data);
+            return;
+        }
+
+        private EventType GetEventType(IDictionary<String, Object> data)
+        {
+            EventType ev;
+            var v = (Dictionary<string, object>) data["event"];
+            if (Enum.TryParse(v["type"].ToString(), true, out ev))
+            {
+                return ev;
+            }
+            return EventType.None;
+        }
+
+        private enum EventType
+        {
+            None,
+            Updated,
+            Created,
+            Deleted,
+            Undeleted
+
         }
 
         public void run()
@@ -37,21 +59,20 @@ namespace Walkthrough
                 // Make a login call 
                 if (login())
                 {
-                    listener = new StreamingEvents(UpdateAccount);
-
-                    listener.Connect(binding.SessionHeaderValue.sessionId);
+//                    listener = new StreamingEvents(UpdateAccount);
+//                    listener.Connect(binding.SessionHeaderValue.sessionId);
 
 
 //                Listener.Start(binding.SessionHeaderValue.sessionId);
 //                Console.ReadLine();
                     // Do a describe global 
-//                describeGlobalSample();
+                describeGlobalSample();
 
                     // Describe an account object 
 //                                describeSObjectsSample();
 
                     // Retrieve some data using a query 
-//                     querySample();
+                     querySample();
 
                     // Log out
 //                logout();
@@ -73,19 +94,7 @@ namespace Walkthrough
                 DescribeSObjectResult[] describeSObjectResults =
                                     binding.describeSObjects(
                                     //new string[] { "account", "contact", "lead" });
-                new string[] { "PushTopic" });
-
-//                foreach (DescribeSObjectResult describeSObjectResult in describeSObjectResults)
-//                {
-//                    foreach (Field field in describeSObjectResult.fields)
-//                    {
-//                        if (field.name.ToUpperInvariant() == "Industry")
-//                        {
-//                            //field.picklistValues
-//                        }
-//                    }
-//                }
-
+                new string[] { "User" });
 
 
                 // Iterate through the list of describe sObject results
@@ -158,9 +167,13 @@ namespace Walkthrough
             Console.Write("Enter username: ");
             //string username = Console.ReadLine();
             string username = "jedwards@connectwise.com";
+            string password = "jn4HuxUdXiHr1";
+
+//            string username = "cwsf@webteks.com";
+//            string password = "dBSX9BoxhY0e";
             Console.Write("Enter password: ");
             //string password = Console.ReadLine();
-            string password = "jn4HuxUdXiHr";
+            
             // Create a service object 
             binding = new SforceService();
 
@@ -434,10 +447,16 @@ namespace Walkthrough
         {
 
             string soqlQuery =
-                string.Format("SELECT Id, Name, NotifyForFields, NotifyForOperations FROM PushTopic");
 
+//                "SELECT Id, Name,  MailingAddress FROM Contact";
+                string.Format("SELECT Id, Name, Query, ApiVersion, IsActive, NotifyForFields, NotifyForOperations, NotifyForOperationCreate, NotifyForOperationUpdate, NotifyForOperationDelete, NotifyForOperationUndelete FROM PushTopic");
 
-
+//                "SELECT Id, Name, OwnerId, Site, AnnualRevenue," +
+//                " BillingStreet, BillingCity, BillingState, BillingPostalCode, BillingCountry, BillingLatitude, BillingLongitude, BillingAddress, " +
+//                "NumberOfEmployees, Fax, Industry, ParentId, Phone,  " +
+//                "ShippingStreet, ShippingCity, ShippingState, ShippingPostalCode, ShippingCountry, ShippingLatitude, ShippingLongitude, ShippingAddress," +
+//                "Type, Website, LastModifiedDate FROM Account";
+//
 //            String soqlQuery = "SELECT Id, AccountId, Email, LastModifiedDate FROM Contact Where AccountId = '001G000001g1WlZIAU'";
             try
             {
@@ -456,17 +475,15 @@ namespace Walkthrough
                         for (int i = 0; i < records.Length; i++)
                         {
                             var con = records[i];
-                            var sfFullContact = con;
-                            var json = JsonConvert.SerializeObject(sfFullContact);
+
+                            foreach (var any in con.Any)
+                            {
+                                Console.WriteLine("Name Field: '" + any.LocalName + "' = '" + any.InnerText + "'");
+                            }
 
 
-                            XmlDocument doc = new XmlDocument();
-                            doc.LoadXml("<sf:Id xmlns:sf=\"urn:sobject.partner.soap.sforce.com\">003G0000024vShrIAE</sf:Id>");
 
-
-
-                            var url = HttpUtility.UrlDecode("https://staging.connectwisedev.com/v2015_3/ConnectWise.html?local=en_US#%7B%22pid%22:1,%20%22p%22:%22cm120%22,%20%22s%22:%7B%22p%22:%7B%22i%22:2,%20%22pid%22:958,%20%22p_0%22:%7B%22ml%22:%220.3701929394155741%22,%20%22pid%22:940%7D,%20%22p_1%22:%7B%22pid%22:959%7D,%20%22p_2%22:%7B");
-                            Console.WriteLine("Contact " + (i + 1) + ": " + con.Id);
+                             Console.WriteLine("Contact " + (i + 1) + ": " + con.Id);
 
                             
 
